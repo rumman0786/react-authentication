@@ -16,39 +16,47 @@ const AuthForm = () => {
     const passwordInput = passwordInputRef.current.value;
 
     setIsLoading(true);
-
+    let url = null;
     if(isLogin) {
-
+      url = 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyD1s7srmeAr57Qb-XxhuAtKeRhQo3psSEI';
     } else {
-      const authData = {
-        email: emailInput,
-        password: passwordInput,
-        returnSecureToken: true
-      };
-
-      fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyD1s7srmeAr57Qb-XxhuAtKeRhQo3psSEI',
-      {
-        method: 'POST',
-        body: JSON.stringify(authData),
-        headers: {'Content-Type': 'application/json'}
-      })
-      .then(res => {
-        setIsLoading(false);
-    
-        if(res.ok) {
-          // ...
-        } else {
-          return res.json().then(data => {
-            let errorMessage = 'Authentication Failed!';
-            if(data && data.error && data.error.message) {
-              errorMessage = data.error.message;
-            }
-
-            console.log(errorMessage);
-          }) 
-        }
-      }) 
+      url = 'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyD1s7srmeAr57Qb-XxhuAtKeRhQo3psSEI';
     }
+
+    const authData = {
+      email: emailInput,
+      password: passwordInput,
+      returnSecureToken: true
+    };
+
+    fetch(url, {
+      method: 'POST',
+      body: JSON.stringify(authData),
+      headers: {'Content-Type': 'application/json'}
+    })
+    .then(res => {
+      setIsLoading(false);
+  
+      if(res.ok) {
+        return res.json();
+      } else {
+        return res.json().then(data => {
+          let errorMessage = 'Authentication Failed!';
+          if(data && data.error && data.error.message) {
+            errorMessage = data.error.message;
+          }
+
+          throw new Error(errorMessage);
+        }) 
+      }
+    })
+    .then((data) => {
+      console.log(data);
+    })
+    .catch(error => {
+      alert(error.message)
+    });
+
   }
 
   const switchAuthModeHandler = () => {
